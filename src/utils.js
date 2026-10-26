@@ -1,5 +1,7 @@
 // Small helper functions used across the app.
 
+import { SEARCH_ENGINES } from './data.js'
+
 // Read a saved value from localStorage. Returns `fallback` if nothing is saved
 // or if the browser blocks storage (for example in some private windows).
 export function loadFromStorage(key, fallback) {
@@ -47,4 +49,10 @@ export function getDomain(url) {
   } catch {
     return url
   }
+}
+
+// Build the web address for a search, e.g. ("google", "cats") -> "https://www.google.com/search?q=cats".
+export function buildSearchUrl(engine, query) {
+  const searchEngine = SEARCH_ENGINES[engine] ?? SEARCH_ENGINES.google
+  return searchEngine.url + encodeURIComponent(query)
 }

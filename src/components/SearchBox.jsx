@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { SEARCH_ENGINES } from '../data.js'
+import { buildSearchUrl } from '../utils.js'
 
 // The big search box in the middle of the page.
-function SearchBox() {
+// `onSearch` is told about each search (used for the signed-in user's history).
+function SearchBox({ onSearch }) {
   const [engine, setEngine] = useState('google') // Google is selected by default
   const [query, setQuery] = useState('')
 
@@ -12,8 +14,8 @@ function SearchBox() {
     const text = query.trim()
     if (text === '') return // ignore empty searches
 
-    const searchUrl = SEARCH_ENGINES[engine].url + encodeURIComponent(text)
-    window.open(searchUrl, '_blank', 'noopener,noreferrer')
+    window.open(buildSearchUrl(engine, text), '_blank', 'noopener,noreferrer')
+    onSearch(engine, text)
   }
 
   return (

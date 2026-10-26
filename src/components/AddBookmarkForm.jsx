@@ -2,7 +2,8 @@ import { useState } from 'react'
 import { normalizeUrl } from '../utils.js'
 
 // A small form for adding a new bookmark.
-function AddBookmarkForm({ onAdd, onCancel }) {
+// `idPrefix` keeps input ids unique when two forms are on the page.
+function AddBookmarkForm({ onAdd, onCancel, idPrefix = 'bookmark' }) {
   const [name, setName] = useState('')
   const [url, setUrl] = useState('')
   const [error, setError] = useState('')
@@ -31,9 +32,9 @@ function AddBookmarkForm({ onAdd, onCancel }) {
     <form className="add-form" onSubmit={handleSubmit} noValidate>
       <div className="add-form-fields">
         <div className="field">
-          <label htmlFor="bookmark-name">Website name</label>
+          <label htmlFor={`${idPrefix}-name`}>Website name</label>
           <input
-            id="bookmark-name"
+            id={`${idPrefix}-name`}
             type="text"
             placeholder="e.g. Netflix"
             value={name}
@@ -43,9 +44,9 @@ function AddBookmarkForm({ onAdd, onCancel }) {
           />
         </div>
         <div className="field">
-          <label htmlFor="bookmark-url">Website URL</label>
+          <label htmlFor={`${idPrefix}-url`}>Website URL</label>
           <input
-            id="bookmark-url"
+            id={`${idPrefix}-url`}
             type="url"
             placeholder="e.g. netflix.com"
             value={url}

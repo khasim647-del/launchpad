@@ -2,8 +2,17 @@ import { useState } from 'react'
 import BookmarkCard from './BookmarkCard.jsx'
 import AddBookmarkForm from './AddBookmarkForm.jsx'
 
-// The "Favorite bookmarks" section: the grid of cards plus the add form.
-function Bookmarks({ bookmarks, onAdd, onDelete }) {
+// A bookmarks section: the grid of cards plus the add form.
+// Used for "Favorite bookmarks" and for the signed-in user's private section.
+function Bookmarks({
+  bookmarks,
+  onAdd,
+  onDelete,
+  id = 'bookmarks',
+  title = 'Favorite bookmarks',
+  note,
+  emptyMessage = 'No bookmarks yet. Add your favorite websites above.',
+}) {
   const [showForm, setShowForm] = useState(false)
 
   function handleAdd(name, url) {
@@ -12,9 +21,12 @@ function Bookmarks({ bookmarks, onAdd, onDelete }) {
   }
 
   return (
-    <section className="section" aria-labelledby="bookmarks-heading">
+    <section className="section" aria-labelledby={`${id}-heading`}>
       <div className="section-header">
-        <h2 id="bookmarks-heading">Favorite bookmarks</h2>
+        <div>
+          <h2 id={`${id}-heading`}>{title}</h2>
+          {note && <p className="section-note">{note}</p>}
+        </div>
         {!showForm && (
           <button type="button" className="button button--primary" onClick={() => setShowForm(true)}>
             + Add bookmark
@@ -22,10 +34,10 @@ function Bookmarks({ bookmarks, onAdd, onDelete }) {
         )}
       </div>
 
-      {showForm && <AddBookmarkForm onAdd={handleAdd} onCancel={() => setShowForm(false)} />}
+      {showForm && <AddBookmarkForm onAdd={handleAdd} onCancel={() => setShowForm(false)} idPrefix={id} />}
 
       {bookmarks.length === 0 ? (
-        <p className="empty-message">No bookmarks yet. Add your favorite websites above.</p>
+        <p className="empty-message">{emptyMessage}</p>
       ) : (
         <ul className="bookmark-grid">
           {bookmarks.map((bookmark) => (
