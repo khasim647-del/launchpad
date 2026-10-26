@@ -1,6 +1,6 @@
 using System.Security.Claims;
 using System.Text;
-using Google.Apis.Auth;
+
 using Launchpad.Api;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -25,6 +25,8 @@ const string Issuer = "launchpad-api";
 var allowedOrigins = config.GetSection("AllowedOrigins").Get<string[]>() ?? [];
 
 // ---------- Services ----------
+
+builder.Services.AddSingleton<IGoogleTokenValidator>(new GoogleTokenValidator(googleClientId));
 
 builder.Services.AddDbContext<LaunchpadDb>(options =>
     options.UseSqlite(config.GetConnectionString("Launchpad") ?? "Data Source=launchpad.db"));
@@ -64,18 +66,10 @@ app.MapGet("/", () => "Launchpad API is running.");
 
 // The website sends the ID token Google gave it. We check it really came from
 // Google for our app, then hand back our own token for later requests.
-app.MapPost("/api/auth/google", async (GoogleSignInRequest request, LaunchpadDb db) =>
+app.MapPost("/api/auth/google", async (GoogleSignInRequest request, IGoogleTokenValidator validator, LaunchpadDb db) =>
 {
-    GoogleJsonWebSignature.Payload google;
-    try
-    {
-        google = await GoogleJsonWebSignature.ValidateAsync(request.Credential,
-            new GoogleJsonWebSignature.ValidationSettings { Audience = [googleClientId] });
-    }
-    catch (InvalidJwtException)
-    {
-        return Results.Unauthorized();
-    }
+    var google = await validator.ValidateAsync(request.Credential);
+    if (google is null) return Results.Unauthorized();
 
     var user = await db.Users.SingleOrDefaultAsync(u => u.GoogleId == google.Subject);
     if (user is null)
@@ -206,6 +200,9 @@ static int UserId(ClaimsPrincipal principal) => int.Parse(principal.FindFirstVal
 
 static object ToDto(User user) => new { user.Id, user.Email, user.Name, user.PictureUrl };
 
-record GoogleSignInRequest(string Credential);
+record GoogleSignInRequest(string? Credential);
 record NewLinkRequest(string? Name, string? Url);
 record NewSearchRequest(string? Engine, string? Query);
+
+// Lets the test project start this API.
+public partial class Program;

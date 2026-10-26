@@ -42,6 +42,17 @@ Vercel only hosts the website, so the API needs a .NET host (for example Azure A
 
 Then on Vercel → **Settings → Environment Variables** add `VITE_API_URL` (the API's address) and `VITE_GOOGLE_CLIENT_ID`, and redeploy.
 
+## Tests
+
+```bash
+npm test                      # website tests (Vitest + React Testing Library)
+npm run test:watch            # same, re-running as you edit
+dotnet test server.Tests      # API tests (xUnit) — needs the .NET 8 SDK
+```
+
+Website tests sit next to the code they test (`*.test.js` / `*.test.jsx`) and use a fake API.
+API tests in `server.Tests/` start the real API with an empty temporary database and a fake Google sign-in.
+
 ## Where things live
 
 - `src/App.jsx` – the page layout, theme and bookmark state (saved to localStorage)
@@ -51,6 +62,7 @@ Then on Vercel → **Settings → Environment Variables** add `VITE_API_URL` (th
 - `src/components/` – one file per part of the page
 - `src/index.css` – all styles; colors are variables at the top
 - `server/` – the .NET 8 API: Google sign-in check, private bookmarks and search history (SQLite database)
+- `server.Tests/` – tests for the API
 
 ## Host it
 
